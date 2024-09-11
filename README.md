@@ -267,6 +267,20 @@ This project is designed to work with `yarn`. If you don't have `yarn`
 installed, you can install it with `npm install -g yarn`. The Docker setup
 already has `yarn` & `npm` installed and configured.
 
+Warning: If you're using Yarn v4 or above, you need to add the --all flag to every instance of `yarn workspaces foreach` in the root package.json script block. For example:
+
+```
+"scripts": {
+  ...
+    "setup:packages": "yarn workspaces foreach  --all --verbose --topological --exclude ROOT --exclude docker-helpers run setup",
+    "pretest": "yarn workspaces foreach  --all --verbose --topological --exclude ROOT --exclude docker-helpers run pretest",
+    "posttest": "yarn workspaces foreach  --all --verbose --topological --exclude ROOT --exclude docker-helpers run posttest",
+    "depcheck": "yarn workspaces foreach  --all --verbose --topological --exclude ROOT --exclude docker-helpers exec depcheck --ignores=\"@app/config,@app/client,tslib,webpack,babel-plugin-import,source-map-support,@graphql-codegen/*,*eslint*,@typescript-eslint/*,graphql-toolkit,net,tls,dayjs,@types/jest,babel-jest,jest,mock-req,mock-res,nodemon,ts-jest,ts-loader,ts-node,update-dotenv,mkdirp,@types/helmet,helmet\" --ignore-dirs=\".next\"",
+    "dev": "yarn && yarn workspaces foreach --all --verbose --topological --exclude ROOT --exclude docker-helpers run codegen && tsc -b && concurrently --kill-others --names \"TSC,WATCH,RUN,TEST\" --prefix \"({name})\" --prefix-colors \"yellow.bold,yellow.bold,cyan.bold,greenBright.bold\" \"tsc -b --watch --preserveWatchOutput\" \"yarn workspaces foreach  --all --verbose --parallel --interlaced --exclude ROOT --exclude docker-helpers run watch\" \"yarn workspaces foreach  --all --verbose --parallel --interlaced --exclude ROOT --exclude docker-helpers run dev\" \"yarn test:watch --delay 10\"",
+    "build": "yarn workspaces foreach  --all --verbose --topological --exclude ROOT --exclude docker-helpers run build",
+}
+```
+
 To get started, please run `yarn`, followed by:
 
 | Local mode   | OR  | Docker mode                     |
